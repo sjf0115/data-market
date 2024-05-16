@@ -97,6 +97,15 @@ public class Rbm64Bitmap {
         this.bitmap.or(other.bitmap);
     }
 
+
+    /**
+     * 是否包含
+     * @param value
+     */
+    public boolean contains(Long value) {
+        return this.bitmap.contains(value);
+    }
+
     /**
      * 序列化
      * @param output
