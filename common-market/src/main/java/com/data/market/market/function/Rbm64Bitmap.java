@@ -1,4 +1,4 @@
-package com.data.market.function;
+package com.data.market.market.function;
 
 import org.roaringbitmap.longlong.Roaring64NavigableMap;
 
@@ -35,7 +35,7 @@ public class Rbm64Bitmap {
      * @return
      * @throws IOException
      */
-    public Rbm64Bitmap bytesToBitmap(byte[] bytes) throws IOException {
+    public static Rbm64Bitmap bytesToBitmap(byte[] bytes) throws IOException {
         Rbm64Bitmap bitmap = new Rbm64Bitmap();
         try (DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes))) {
             bitmap.deserialize(in);
@@ -51,7 +51,7 @@ public class Rbm64Bitmap {
      * @return
      * @throws IOException
      */
-    public byte[] bitmapToBytes(Rbm64Bitmap bitmap) throws IOException {
+    public static byte[] bitmapToBytes(Rbm64Bitmap bitmap) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (DataOutputStream dos = new DataOutputStream(bos)) {
             bitmap.serialize(dos);
@@ -65,11 +65,19 @@ public class Rbm64Bitmap {
      * List
      * @param values
      */
-    public void build(List<Long> values) {
+    public void fromArray(List<Long> values) {
         this.bitmap = this.bitmap == null ? new Roaring64NavigableMap() : this.bitmap;
         for (Long value : values) {
             this.bitmap.add(value);
         }
+    }
+
+    /**
+     * 添加元素
+     * @param value
+     */
+    public void add(Long value) {
+        this.bitmap.add(value);
     }
 
     /**
