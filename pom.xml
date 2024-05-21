@@ -16,7 +16,7 @@
 
 
     <properties>
-        <roaringBitmap.version>0.9.23</roaringBitmap.version>
+        <roaringBitmap.version>0.9.49</roaringBitmap.version>
         <junit.version>4.11</junit.version>
         <hive.version>2.3.4</hive.version>
     </properties>

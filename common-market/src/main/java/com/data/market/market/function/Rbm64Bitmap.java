@@ -68,7 +68,7 @@ public class Rbm64Bitmap {
     public void fromArray(List<Long> values) {
         this.bitmap = this.bitmap == null ? new Roaring64NavigableMap() : this.bitmap;
         for (Long value : values) {
-            this.bitmap.add(value);
+            this.bitmap.addLong(value);
         }
     }
 
@@ -77,7 +77,7 @@ public class Rbm64Bitmap {
      * @param value
      */
     public void add(Long value) {
-        this.bitmap.add(value);
+        this.bitmap.addLong(value);
     }
 
     /**
