@@ -27,14 +27,14 @@ public class RbmBitmapOrUDF extends GenericUDF {
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         // 参数个数校验
         if (arguments.length != 2) {
-            throw new UDFArgumentLengthException("The function 'rbm_bitmap_or' only accepts 2 argument, but got " + arguments.length);
+            throw new UDFArgumentLengthException("The function '" + functionName + "' only accepts 2 argument, but got " + arguments.length);
         }
 
         // 参数类型校验
         ObjectInspector arg0 = arguments[0];
         ObjectInspector arg1 = arguments[1];
         if (!(arg0 instanceof BinaryObjectInspector) || !(arg1 instanceof BinaryObjectInspector)) {
-            throw new UDFArgumentException("Argument of rbm_bitmap_or should be binary type");
+            throw new UDFArgumentException("Argument of '" + functionName + "' should be binary type");
         }
         this.inspector0 = (BinaryObjectInspector) arg0;
         this.inspector1 = (BinaryObjectInspector) arg1;
@@ -54,7 +54,7 @@ public class RbmBitmapOrUDF extends GenericUDF {
         try {
             Rbm64Bitmap bitmap0 = Rbm64Bitmap.bytesToBitmap(bytes0);
             Rbm64Bitmap bitmap1 = Rbm64Bitmap.bytesToBitmap(bytes1);
-            bitmap0.and(bitmap1);
+            bitmap0.or(bitmap1);
             return Rbm64Bitmap.bitmapToBytes(bitmap0);
         } catch (IOException e) {
             throw new HiveException(e);
@@ -63,6 +63,6 @@ public class RbmBitmapOrUDF extends GenericUDF {
 
     public String getDisplayString(String[] children) {
         // 这里返回函数及其参数的描述
-        return "rbm_bitmap_and(bitmap, bitmap)";
+        return functionName + "(bitmap, bitmap)";
     }
 }
