@@ -1,5 +1,6 @@
 package com.data.market.market.function;
 
+import org.roaringbitmap.longlong.LongIterator;
 import org.roaringbitmap.longlong.Roaring64NavigableMap;
 
 import java.io.*;
@@ -59,6 +60,24 @@ public class Rbm64Bitmap {
             throw new IOException("Error serializing bitmap: ", e);
         }
         return bos.toByteArray();
+    }
+
+    /**
+     * Bitmap 转换为 字符串
+     * @return
+     * @throws IOException
+     */
+    public String bitmapToString() throws IOException {
+        final StringBuilder answer = new StringBuilder();
+        LongIterator iterator = this.bitmap.getLongIterator();
+        while (iterator.hasNext()) {
+            long nextValue = iterator.next();
+            if (answer.length() > 0) {
+                answer.append(",");
+            }
+            answer.append(nextValue);
+        }
+        return answer.toString();
     }
 
     /**
