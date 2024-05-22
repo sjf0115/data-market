@@ -4,6 +4,7 @@ import org.roaringbitmap.longlong.LongIterator;
 import org.roaringbitmap.longlong.Roaring64NavigableMap;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -78,6 +79,21 @@ public class Rbm64Bitmap {
             answer.append(nextValue);
         }
         return answer.toString();
+    }
+
+    /**
+     * Bitmap 转换为 List<Long>
+     * @return
+     * @throws IOException
+     */
+    public List<Long> bitmapToArray() throws IOException {
+        List<Long> answer = new ArrayList<>();
+        LongIterator iterator = this.bitmap.getLongIterator();
+        while (iterator.hasNext()) {
+            long nextValue = iterator.next();
+            answer.add(nextValue);
+        }
+        return answer;
     }
 
     /**

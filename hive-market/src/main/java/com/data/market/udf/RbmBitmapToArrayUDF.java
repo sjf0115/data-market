@@ -5,7 +5,10 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
+import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.StandardListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
@@ -13,7 +16,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectIn
 import java.io.IOException;
 
 /**
- * 功能：Bitmap 计算两个位图 Bitmap 不重复元素所构成的集合，并返回一个新的 bitmap
+ * 功能：Bitmap 转换为数组
  * 作者：SmartSi
  * CSDN博客：https://smartsi.blog.csdn.net/
  * 公众号：大数据生态
@@ -21,8 +24,7 @@ import java.io.IOException;
  */
 public class RbmBitmapToArrayUDF extends GenericUDF {
     private static String functionName = "rbm_bitmap_to_array";
-    private transient BinaryObjectInspector inspector0;
-    private transient BinaryObjectInspector inspector1;
+    private transient BinaryObjectInspector inspector;
 
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         // 参数个数校验
@@ -31,29 +33,26 @@ public class RbmBitmapToArrayUDF extends GenericUDF {
         }
 
         // 参数类型校验
-        ObjectInspector arg0 = arguments[0];
-        if (!(arg0 instanceof BinaryObjectInspector)) {
+        ObjectInspector arg = arguments[0];
+        if (!(arg instanceof BinaryObjectInspector)) {
             throw new UDFArgumentException("Argument of '" + functionName + "' should be binary type");
         }
-        this.inspector0 = (BinaryObjectInspector) arg0;
+        this.inspector = (BinaryObjectInspector) arg;
 
         // 返回值类型
-        return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
+        return ObjectInspectorFactory.getStandardListObjectInspector(PrimitiveObjectInspectorFactory.javaLongObjectInspector);
     }
 
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
-        if (deferredObjects[0].get() == null || deferredObjects[1].get() == null) {
+        if (deferredObjects[0].get() == null) {
             return null;
         }
 
-        byte[] bytes0 = PrimitiveObjectInspectorUtils.getBinary(deferredObjects[0].get(), this.inspector0).getBytes();
-        byte[] bytes1 = PrimitiveObjectInspectorUtils.getBinary(deferredObjects[1].get(), this.inspector1).getBytes();
+        byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(deferredObjects[0].get(), this.inspector).getBytes();
 
         try {
-            Rbm64Bitmap bitmap0 = Rbm64Bitmap.bytesToBitmap(bytes0);
-            Rbm64Bitmap bitmap1 = Rbm64Bitmap.bytesToBitmap(bytes1);
-            bitmap0.xor(bitmap1);
-            return Rbm64Bitmap.bitmapToBytes(bitmap0);
+            Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+            return bitmap.bitmapToArray();
         } catch (IOException e) {
             throw new HiveException(e);
         }
@@ -61,6 +60,6 @@ public class RbmBitmapToArrayUDF extends GenericUDF {
 
     public String getDisplayString(String[] children) {
         // 这里返回函数及其参数的描述
-        return functionName + "(bitmap, bitmap)";
+        return functionName + "(bitmap)";
     }
 }
