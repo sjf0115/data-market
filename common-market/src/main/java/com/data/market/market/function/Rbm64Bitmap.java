@@ -107,6 +107,14 @@ public class Rbm64Bitmap {
     }
 
     /**
+     * 差集
+     * @param other
+     */
+    public void andNot(Rbm64Bitmap other) {
+        this.bitmap.andNot(other.bitmap);
+    }
+
+    /**
      * 是否包含
      * @param value
      */
