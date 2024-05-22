@@ -99,6 +99,14 @@ public class Rbm64Bitmap {
 
 
     /**
+     * 异或操作
+     * @param other
+     */
+    public void xor(Rbm64Bitmap other) {
+        this.bitmap.xor(other.bitmap);
+    }
+
+    /**
      * 是否包含
      * @param value
      */
