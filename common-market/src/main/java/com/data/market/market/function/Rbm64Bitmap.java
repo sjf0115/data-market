@@ -167,6 +167,13 @@ public class Rbm64Bitmap {
     }
 
     /**
+     * 基数
+     */
+    public Long getLongCardinality() {
+        return this.bitmap.getLongCardinality();
+    }
+
+    /**
      * 序列化
      * @param output
      * @throws IOException
