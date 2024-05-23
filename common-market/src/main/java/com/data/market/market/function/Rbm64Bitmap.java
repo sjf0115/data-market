@@ -158,6 +158,15 @@ public class Rbm64Bitmap {
     }
 
     /**
+     * 是否包含公共元素
+     * @param other
+     */
+    public boolean hasAny(Rbm64Bitmap other) {
+        this.bitmap.and(other.bitmap);
+        return this.bitmap.getLongCardinality() > 0 ? true :false;
+    }
+
+    /**
      * 序列化
      * @param output
      * @throws IOException
