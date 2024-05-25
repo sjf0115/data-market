@@ -49,7 +49,6 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
         private PrimitiveObjectInspector inputOI;
         private PrimitiveObjectInspector outputOI;
 
-
         static class BitmapAggBuffer implements AggregationBuffer {
             boolean empty;
             Rbm64Bitmap bitmap;
@@ -70,17 +69,16 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
 
         // 创建新的聚合计算需要的内存，用来存储 Mapper, Combiner, Reducer 运算过程中的聚合。
         @Override
-        public AggregationBuffer getNewAggregationBuffer() throws HiveException {
+        public AggregationBuffer getNewAggregationBuffer() {
             BitmapAggBuffer bitmapAggBuffer = new BitmapAggBuffer();
             reset(bitmapAggBuffer);
             return bitmapAggBuffer;
         }
 
         @Override
-        public void reset(AggregationBuffer agg) throws HiveException {
+        public void reset(AggregationBuffer agg) {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer)agg;
-            Rbm64Bitmap bitmap = bitmapAggBuffer.bitmap;
-            if (Objects.equal(bitmap, null)) {
+            if (Objects.equal(bitmapAggBuffer.bitmap, null)) {
                 return;
             }
             bitmapAggBuffer.bitmap.clear();
@@ -89,7 +87,7 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
 
         // Map阶段：遍历输入参数
         @Override
-        public void iterate(AggregationBuffer agg, Object[] parameters) throws HiveException {
+        public void iterate(AggregationBuffer agg, Object[] parameters) {
             Object param = parameters[0];
             if (Objects.equal(param, null)) {
                 return;
@@ -103,15 +101,15 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             }
         }
 
-        // Mapper,Combiner结束要返回的结果.
+        // Mapper,Combiner 结束要返回的结果
         @Override
-        public Object terminatePartial(AggregationBuffer agg) throws HiveException {
+        public Object terminatePartial(AggregationBuffer agg) {
             return terminate(agg);
         }
 
-        // Combiner合并Mapper返回的结果, Reducer合并Mapper或Combiner返回的结果.
+        // 合并: Combiner 合并 Mapper 返回的结果, Reducer 合并 Mapper 或 Combiner 返回的结果
         @Override
-        public void merge(AggregationBuffer agg, Object partial) throws HiveException {
+        public void merge(AggregationBuffer agg, Object partial) {
             if (Objects.equal(partial, null)){
                 return;
             }
@@ -125,8 +123,9 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             }
         }
 
+        // 输出最终聚合结果
         @Override
-        public Object terminate(AggregationBuffer agg) throws HiveException {
+        public Object terminate(AggregationBuffer agg) {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer) agg;
             byte[] bytes = null;
             try {
