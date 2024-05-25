@@ -160,6 +160,14 @@ public class Rbm64Bitmap {
     }
 
     /**
+     * 从 Bitmap 中删除指定的数值
+     * @param value
+     */
+    public void remove(Long value) {
+        this.bitmap.removeLong(value);
+    }
+
+    /**
      * 是否包含公共元素
      * @param other
      */
