@@ -1,5 +1,6 @@
 package com.data.market.market.function;
 
+import org.roaringbitmap.RoaringBitmap;
 import org.roaringbitmap.longlong.LongIterator;
 import org.roaringbitmap.longlong.Roaring64NavigableMap;
 
@@ -171,6 +172,17 @@ public class Rbm64Bitmap {
      */
     public Long getLongCardinality() {
         return this.bitmap.getLongCardinality();
+    }
+
+    /**
+     * 返回取值在 [start, end) 指定范围内的元素
+     * @param start
+     * @param end
+     */
+    public void subsetInRange(Long start, Long end) {
+        this.bitmap = Roaring64NavigableMap.bitmapOf(
+                this.bitmap.stream().filter(x -> x >= start && x < end).toArray()
+        );
     }
 
     /**
