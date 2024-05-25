@@ -13,14 +13,14 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectIn
 import java.io.IOException;
 
 /**
- * 功能：计算两个位图 bitmap 的并集，并返回并集 bitmap 的基数
+ * 功能：计算两个位图 Bitmap 的不重复元素所构成的集合，并返回新的 bitmap 的基数
  * 作者：SmartSi
  * CSDN博客：https://smartsi.blog.csdn.net/
  * 公众号：大数据生态
  * 日期：2024/5/17 06:51
  */
-public class RbmBitmapOrCardinalityUDF extends GenericUDF {
-    private static String functionName = "rbm_bitmap_or_count";
+public class RbmBitmapXorCardinalityUDF extends GenericUDF {
+    private static String functionName = "rbm_bitmap_xor_count";
     private transient BinaryObjectInspector inspector0;
     private transient BinaryObjectInspector inspector1;
 
@@ -54,7 +54,7 @@ public class RbmBitmapOrCardinalityUDF extends GenericUDF {
         try {
             Rbm64Bitmap bitmap0 = Rbm64Bitmap.bytesToBitmap(bytes0);
             Rbm64Bitmap bitmap1 = Rbm64Bitmap.bytesToBitmap(bytes1);
-            bitmap0.or(bitmap1);
+            bitmap0.xor(bitmap1);
             return bitmap0.getLongCardinality();
         } catch (IOException e) {
             throw new HiveException(e);
