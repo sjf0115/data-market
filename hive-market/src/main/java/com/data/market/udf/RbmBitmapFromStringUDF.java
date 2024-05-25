@@ -21,18 +21,19 @@ import java.io.IOException;
  * 日期：2024/5/17 06:51
  */
 public class RbmBitmapFromStringUDF extends GenericUDF {
+    private static String functionName = "rbm_bitmap_from_str";
     private transient StringObjectInspector inspector;
 
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         // 参数个数校验
         if (arguments.length != 1) {
-            throw new UDFArgumentLengthException("The function 'rbm_bitmap_from_str' only accepts 1 argument, but got " + arguments.length);
+            throw new UDFArgumentLengthException("The function '" + functionName + "' only accepts 1 argument, but got " + arguments.length);
         }
 
         // 参数类型校验
         ObjectInspector arg = arguments[0];
         if (!(arg instanceof StringObjectInspector)) {
-            throw new UDFArgumentException("Argument of rbm_bitmap_from_str should be string type");
+            throw new UDFArgumentException("Argument of '" + functionName + "' should be string type");
         }
         this.inspector = (StringObjectInspector) arg;
 
@@ -66,6 +67,6 @@ public class RbmBitmapFromStringUDF extends GenericUDF {
 
     public String getDisplayString(String[] children) {
         // 这里返回函数及其参数的描述
-        return "rbm_bitmap_from_str(value)";
+        return functionName + "(value)";
     }
 }

@@ -1,17 +1,12 @@
 package com.data.market.udf;
 
-import com.data.market.market.function.Rbm64Bitmap;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.io.parquet.serde.ArrayWritableObjectInspector;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
-
-import java.io.IOException;
 
 /**
  * 功能：Array 转换为 Bitmap
@@ -21,6 +16,7 @@ import java.io.IOException;
  * 日期：2024/5/17 06:51
  */
 public class RbmBitmapFromArrayUDF extends GenericUDF {
+    private static String functionName = "rbm_bitmap_from_array";
     private transient ArrayWritableObjectInspector inspector;
 
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {

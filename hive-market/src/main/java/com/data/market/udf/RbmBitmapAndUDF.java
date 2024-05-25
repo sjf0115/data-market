@@ -20,20 +20,21 @@ import java.io.IOException;
  * 日期：2024/5/17 06:51
  */
 public class RbmBitmapAndUDF extends GenericUDF {
+    private static String functionName = "rbm_bitmap_and";
     private transient BinaryObjectInspector inspector0;
     private transient BinaryObjectInspector inspector1;
 
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         // 参数个数校验
         if (arguments.length != 2) {
-            throw new UDFArgumentLengthException("The function 'rbm_bitmap_and' only accepts 2 argument, but got " + arguments.length);
+            throw new UDFArgumentLengthException("The function '" + functionName + "' only accepts 2 argument, but got " + arguments.length);
         }
 
         // 参数类型校验
         ObjectInspector arg0 = arguments[0];
         ObjectInspector arg1 = arguments[1];
         if (!(arg0 instanceof BinaryObjectInspector) || !(arg1 instanceof BinaryObjectInspector)) {
-            throw new UDFArgumentException("Argument of rbm_bitmap_and should be binary type");
+            throw new UDFArgumentException("Argument of '" + functionName + "' should be binary type");
         }
         this.inspector0 = (BinaryObjectInspector) arg0;
         this.inspector1 = (BinaryObjectInspector) arg1;
@@ -62,6 +63,6 @@ public class RbmBitmapAndUDF extends GenericUDF {
 
     public String getDisplayString(String[] children) {
         // 这里返回函数及其参数的描述
-        return "rbm_bitmap_and(bitmap, bitmap)";
+        return functionName + "(bitmap, bitmap)";
     }
 }

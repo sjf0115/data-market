@@ -18,13 +18,14 @@ import java.io.IOException;
  * 日期：2024/5/17 06:51
  */
 public class RbmBitmapContainsUDF extends GenericUDF {
+    private static String functionName = "rbm_bitmap_contains";
     private transient BinaryObjectInspector inspector0;
     private transient LongObjectInspector inspector1;
 
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         // 参数个数校验
         if (arguments.length != 2) {
-            throw new UDFArgumentLengthException("The function 'rbm_bitmap_contains' only accepts 2 argument, but got " + arguments.length);
+            throw new UDFArgumentLengthException("The function '" + functionName + "' only accepts 2 argument, but got " + arguments.length);
         }
 
         // 参数类型校验
@@ -32,10 +33,10 @@ public class RbmBitmapContainsUDF extends GenericUDF {
         ObjectInspector arg1 = arguments[1];
 
         if (!(arg0 instanceof BinaryObjectInspector)) {
-            throw new UDFArgumentException("First argument of rbm_bitmap_contains should be binary type.");
+            throw new UDFArgumentException("First argument of '" + functionName + "' should be binary type.");
         }
         if (!(arg1 instanceof LongObjectInspector)) {
-            throw new UDFArgumentException("Second argument of rbm_bitmap_contains should be long type.");
+            throw new UDFArgumentException("Second argument of '" + functionName + "' should be long type.");
         }
 
         this.inspector0 = (BinaryObjectInspector) arg0;
@@ -63,6 +64,6 @@ public class RbmBitmapContainsUDF extends GenericUDF {
 
     public String getDisplayString(String[] children) {
         // 这里返回函数及其参数的描述
-        return "rbm_bitmap_contains(bitmap, value)";
+        return functionName + "(bitmap, value)";
     }
 }
