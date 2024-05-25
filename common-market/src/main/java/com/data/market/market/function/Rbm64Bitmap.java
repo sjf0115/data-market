@@ -192,7 +192,18 @@ public class Rbm64Bitmap {
      */
     public void subsetLimit(Long start, Long limit) {
         this.bitmap = Roaring64NavigableMap.bitmapOf(
-                this.bitmap.stream().filter(x -> x >= start && x <= (start + limit)).toArray()
+                this.bitmap.stream().filter(x -> x >= start).limit(limit).toArray()
+        );
+    }
+
+    /**
+     * 根据 offset 指定的起始位置截取指定个数的元素
+     * @param offset
+     * @param limit
+     */
+    public void subsetOffset(Long offset, Long limit) {
+        this.bitmap = Roaring64NavigableMap.bitmapOf(
+                this.bitmap.stream().skip(offset).limit(limit).toArray()
         );
     }
 
