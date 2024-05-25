@@ -186,6 +186,17 @@ public class Rbm64Bitmap {
     }
 
     /**
+     * 根据指定的起始值截取指定个数的元素
+     * @param start
+     * @param limit
+     */
+    public void subsetLimit(Long start, Long limit) {
+        this.bitmap = Roaring64NavigableMap.bitmapOf(
+                this.bitmap.stream().filter(x -> x >= start && x <= (start + limit)).toArray()
+        );
+    }
+
+    /**
      * 序列化
      * @param output
      * @throws IOException
