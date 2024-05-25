@@ -7,6 +7,7 @@ import org.roaringbitmap.longlong.Roaring64NavigableMap;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalLong;
 
 /**
  * 功能：Rbm64Bitmap
@@ -205,6 +206,32 @@ public class Rbm64Bitmap {
         this.bitmap = Roaring64NavigableMap.bitmapOf(
                 this.bitmap.stream().skip(offset).limit(limit).toArray()
         );
+    }
+
+    /**
+     * 最大值
+     * @return
+     */
+    public Long max() {
+        OptionalLong maxOptional = this.bitmap.stream().max();
+        if (maxOptional.isPresent()) {
+            return maxOptional.getAsLong();
+        } else {
+            return 0L;
+        }
+    }
+
+    /**
+     * 最小值
+     * @return
+     */
+    public Long min() {
+        OptionalLong minOptional = this.bitmap.stream().min();
+        if (minOptional.isPresent()) {
+            return minOptional.getAsLong();
+        } else {
+            return Long.MAX_VALUE;
+        }
     }
 
     /**
