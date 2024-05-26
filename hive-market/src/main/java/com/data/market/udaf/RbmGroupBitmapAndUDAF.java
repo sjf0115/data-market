@@ -2,13 +2,15 @@ package com.data.market.udaf;
 
 import com.data.market.market.function.Rbm64Bitmap;
 import com.google.common.base.Objects;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator;
-import org.apache.hadoop.hive.serde2.objectinspector.*;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
@@ -18,14 +20,14 @@ import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import java.io.IOException;
 
 /**
- * 功能：根据整数列聚合计算返回一个位图 Bitmap
+ * 功能：计算位图 Bitmap 列的交集(与操作)，并返回一个新的位图 Bitmap
  * 作者：SmartSi
  * CSDN博客：https://smartsi.blog.csdn.net/
  * 公众号：大数据生态
  * 日期：2024/5/23 22:11
  */
-public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
-    private static String functionName = "rbm_group_bitmap";
+public class RbmGroupBitmapAndUDAF extends AbstractGenericUDAFResolver {
+    private static String functionName = "rbm_group_bitmap_and";
     @Override
     public GenericUDAFEvaluator getEvaluator(TypeInfo[] arguments) throws SemanticException {
         // 参数个数校验
@@ -38,20 +40,20 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             throw new UDFArgumentTypeException(0, "Only primitive type arguments are accepted but " + arguments[0].getTypeName() + " is passed.");
         }
         PrimitiveObjectInspector.PrimitiveCategory primitiveCategory = ((PrimitiveTypeInfo) arguments[0]).getPrimitiveCategory();
-        if (primitiveCategory == PrimitiveObjectInspector.PrimitiveCategory.LONG || primitiveCategory == PrimitiveObjectInspector.PrimitiveCategory.INT) {
-            // 支持 Long 或者 Int 类型的聚合
+        if (primitiveCategory == PrimitiveObjectInspector.PrimitiveCategory.BINARY) {
+            // 支持 BINARY 类型的聚合
             return new MergeEvaluator();
         } else {
-            throw new UDFArgumentTypeException(0, "Only long or int type arguments are accepted but " + arguments[0].getTypeName() + " is passed.");
+            throw new UDFArgumentTypeException(0, "Only binary type arguments are accepted but " + arguments[0].getTypeName() + " is passed.");
         }
     }
 
     public static class MergeEvaluator extends GenericUDAFEvaluator {
-        private PrimitiveObjectInspector inputOI;
+        private BinaryObjectInspector inputOI;
         private BinaryObjectInspector outputOI;
 
-        static class BitmapAggBuffer implements AggregationBuffer {
-            boolean empty;
+        @AggregationType(estimable = true)
+        static class BitmapAggBuffer extends AbstractAggregationBuffer {
             Rbm64Bitmap bitmap;
             public BitmapAggBuffer () {
                 bitmap = new Rbm64Bitmap();
@@ -66,7 +68,7 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             }
             super.init(mode, parameters);
             if (mode == Mode.PARTIAL1 || mode == Mode.COMPLETE) {
-                this.inputOI = (PrimitiveObjectInspector) parameters[0];
+                this.inputOI = (BinaryObjectInspector) parameters[0];
             } else {
                 this.outputOI = (BinaryObjectInspector) parameters[0];
             }
@@ -87,7 +89,7 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             bitmapAggBuffer.bitmap = new Rbm64Bitmap();
         }
 
-        // Map阶段：遍历输入参数
+        // 遍历输入参数
         @Override
         public void iterate(AggregationBuffer agg, Object[] parameters) {
             Object param = parameters[0];
@@ -96,9 +98,12 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             }
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer) agg;
             try {
-                Long value = PrimitiveObjectInspectorUtils.getLong(param, inputOI);
-                bitmapAggBuffer.bitmap.add(value);
+                byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(param, inputOI).getBytes();
+                Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+                bitmapAggBuffer.bitmap.and(bitmap);
             } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -119,7 +124,7 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             try {
                 byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(partial, outputOI).getBytes();
                 Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
-                bitmapAggBuffer.bitmap.or(bitmap);
+                bitmapAggBuffer.bitmap.and(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
