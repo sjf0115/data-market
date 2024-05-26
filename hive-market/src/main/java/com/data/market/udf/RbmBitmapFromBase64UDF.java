@@ -46,14 +46,12 @@ public class RbmBitmapFromBase64UDF extends GenericUDF {
         }
 
         String str = PrimitiveObjectInspectorUtils.getString(deferredObjects[0].get(), this.inspector);
-        Rbm64Bitmap bitmap = null;
         try {
-            bitmap = Rbm64Bitmap.fromBase64(str);
+            Rbm64Bitmap bitmap = Rbm64Bitmap.fromBase64(str);
             return bitmap.toBytes();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new HiveException(e);
         }
-        return bitmap;
     }
 
     public String getDisplayString(String[] children) {
