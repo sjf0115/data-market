@@ -6,6 +6,7 @@ import org.roaringbitmap.longlong.Roaring64NavigableMap;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.OptionalLong;
 
@@ -50,6 +51,17 @@ public class Rbm64Bitmap {
     }
 
     /**
+     * List
+     * @param values
+     */
+    public void fromArray(List<Long> values) {
+        this.bitmap = this.bitmap == null ? new Roaring64NavigableMap() : this.bitmap;
+        for (Long value : values) {
+            this.bitmap.addLong(value);
+        }
+    }
+
+    /**
      * Bitmap 转换为 bytes
      * @param bitmap
      * @return
@@ -59,6 +71,22 @@ public class Rbm64Bitmap {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (DataOutputStream dos = new DataOutputStream(bos)) {
             bitmap.serialize(dos);
+        } catch (IOException e) {
+            throw new IOException("Error serializing bitmap: ", e);
+        }
+        return bos.toByteArray();
+    }
+
+
+    /**
+     * Bitmap 转换为 bytes
+     * @return
+     * @throws IOException
+     */
+    public byte[] bitmapToBytes() throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (DataOutputStream dos = new DataOutputStream(bos)) {
+            this.bitmap.serialize(dos);
         } catch (IOException e) {
             throw new IOException("Error serializing bitmap: ", e);
         }
@@ -99,14 +127,14 @@ public class Rbm64Bitmap {
     }
 
     /**
-     * List
-     * @param values
+     * Bitmap 转换为 Base64 字符串
+     * @return
+     * @throws IOException
      */
-    public void fromArray(List<Long> values) {
-        this.bitmap = this.bitmap == null ? new Roaring64NavigableMap() : this.bitmap;
-        for (Long value : values) {
-            this.bitmap.addLong(value);
-        }
+    public String bitmapToBase64() throws IOException {
+        byte[] bytes = bitmapToBytes();
+        String base64String = Base64.getEncoder().encodeToString(bytes);
+        return base64String;
     }
 
     /**
