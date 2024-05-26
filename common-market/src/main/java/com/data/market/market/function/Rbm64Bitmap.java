@@ -51,17 +51,6 @@ public class Rbm64Bitmap {
     }
 
     /**
-     * List
-     * @param values
-     */
-    public void fromArray(List<Long> values) {
-        this.bitmap = this.bitmap == null ? new Roaring64NavigableMap() : this.bitmap;
-        for (Long value : values) {
-            this.bitmap.addLong(value);
-        }
-    }
-
-    /**
      * Bitmap 转换为 bytes
      * @param bitmap
      * @return
@@ -76,6 +65,45 @@ public class Rbm64Bitmap {
         }
         return bos.toByteArray();
     }
+
+    /**
+     * bytes 转换为 Bitmap
+     * @param bytes
+     * @return
+     * @throws IOException
+     */
+    public static Rbm64Bitmap fromBytes(byte[] bytes) throws IOException {
+        Rbm64Bitmap bitmap = new Rbm64Bitmap();
+        try (DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes))) {
+            bitmap.deserialize(in);
+        } catch (IOException e) {
+            throw new IOException("Error deserializing bitmap: ", e);
+        }
+        return bitmap;
+    }
+
+    /**
+     *  Base64 字符串转换为 Bitmap
+     * @return
+     * @throws IOException
+     */
+    public static Rbm64Bitmap fromBase64(String base64String) throws IOException {
+        byte[] bytes = Base64.getDecoder().decode(base64String);
+        Rbm64Bitmap bitmap = fromBytes(bytes);
+        return bitmap;
+    }
+
+    /**
+     * List
+     * @param values
+     */
+    public void fromArray(List<Long> values) {
+        this.bitmap = this.bitmap == null ? new Roaring64NavigableMap() : this.bitmap;
+        for (Long value : values) {
+            this.bitmap.addLong(value);
+        }
+    }
+
 
 
     /**
