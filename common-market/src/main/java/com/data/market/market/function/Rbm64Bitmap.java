@@ -1,6 +1,5 @@
 package com.data.market.market.function;
 
-import org.roaringbitmap.RoaringBitmap;
 import org.roaringbitmap.longlong.LongIterator;
 import org.roaringbitmap.longlong.Roaring64NavigableMap;
 
@@ -34,37 +33,7 @@ public class Rbm64Bitmap {
         this.bitmap = bitmap;
     }
 
-    /**
-     * bytes 转换为 Bitmap
-     * @param bytes
-     * @return
-     * @throws IOException
-     */
-    public static Rbm64Bitmap bytesToBitmap(byte[] bytes) throws IOException {
-        Rbm64Bitmap bitmap = new Rbm64Bitmap();
-        try (DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes))) {
-            bitmap.deserialize(in);
-        } catch (IOException e) {
-            throw new IOException("Error deserializing bitmap: ", e);
-        }
-        return bitmap;
-    }
-
-    /**
-     * Bitmap 转换为 bytes
-     * @param bitmap
-     * @return
-     * @throws IOException
-     */
-    public static byte[] bitmapToBytes(Rbm64Bitmap bitmap) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try (DataOutputStream dos = new DataOutputStream(bos)) {
-            bitmap.serialize(dos);
-        } catch (IOException e) {
-            throw new IOException("Error serializing bitmap: ", e);
-        }
-        return bos.toByteArray();
-    }
+    //------------------------------------------------------------------------------------------------------------------
 
     /**
      * bytes 转换为 Bitmap
@@ -94,24 +63,40 @@ public class Rbm64Bitmap {
     }
 
     /**
-     * List
-     * @param values
+     *  字符串转换为 Bitmap
+     * @return
+     * @throws IOException
      */
-    public void fromArray(List<Long> values) {
-        this.bitmap = this.bitmap == null ? new Roaring64NavigableMap() : this.bitmap;
-        for (Long value : values) {
-            this.bitmap.addLong(value);
+    public static Rbm64Bitmap fromString(String string) {
+        Rbm64Bitmap bitmap = new Rbm64Bitmap();
+        String[] strArray = string.split(",");
+        for (String s : strArray) {
+            long v = Long.parseLong(s);
+            bitmap.add(v);
         }
+        return bitmap;
     }
 
+    /**
+     * 数组转换为 Bitmap
+     * @param values
+     */
+    public static Rbm64Bitmap fromArray(List<Long> values) {
+        Rbm64Bitmap bitmap = new Rbm64Bitmap();
+        for (Long value : values) {
+            bitmap.add(value);
+        }
+        return bitmap;
+    }
 
+    //------------------------------------------------------------------------------------------------------------------
 
     /**
      * Bitmap 转换为 bytes
      * @return
      * @throws IOException
      */
-    public byte[] bitmapToBytes() throws IOException {
+    public byte[] toBytes() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (DataOutputStream dos = new DataOutputStream(bos)) {
             this.bitmap.serialize(dos);
@@ -126,7 +111,7 @@ public class Rbm64Bitmap {
      * @return
      * @throws IOException
      */
-    public String bitmapToString() throws IOException {
+    public String toString() {
         final StringBuilder answer = new StringBuilder();
         LongIterator iterator = this.bitmap.getLongIterator();
         while (iterator.hasNext()) {
@@ -144,7 +129,7 @@ public class Rbm64Bitmap {
      * @return
      * @throws IOException
      */
-    public List<Long> bitmapToArray() throws IOException {
+    public List<Long> toArray() throws IOException {
         List<Long> answer = new ArrayList<>();
         LongIterator iterator = this.bitmap.getLongIterator();
         while (iterator.hasNext()) {
@@ -159,11 +144,13 @@ public class Rbm64Bitmap {
      * @return
      * @throws IOException
      */
-    public String bitmapToBase64() throws IOException {
-        byte[] bytes = bitmapToBytes();
+    public String toBase64() throws IOException {
+        byte[] bytes = toBytes();
         String base64String = Base64.getEncoder().encodeToString(bytes);
         return base64String;
     }
+
+    //------------------------------------------------------------------------------------------------------------------
 
     /**
      * 添加元素

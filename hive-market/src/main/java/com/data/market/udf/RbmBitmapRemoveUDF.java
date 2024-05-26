@@ -58,9 +58,9 @@ public class RbmBitmapRemoveUDF extends GenericUDF {
         Long value = PrimitiveObjectInspectorUtils.getLong(deferredObjects[1].get(), this.inspector1);
 
         try {
-            Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+            Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
             bitmap.remove(value);
-            return Rbm64Bitmap.bitmapToBytes(bitmap);
+            return bitmap.toBytes();
         } catch (IOException e) {
             throw new HiveException(e);
         }

@@ -5,10 +5,8 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
-import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
-import org.apache.hadoop.hive.serde2.objectinspector.StandardListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
@@ -51,8 +49,8 @@ public class RbmBitmapToArrayUDF extends GenericUDF {
         byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(deferredObjects[0].get(), this.inspector).getBytes();
 
         try {
-            Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
-            return bitmap.bitmapToArray();
+            Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
+            return bitmap.toArray();
         } catch (IOException e) {
             throw new HiveException(e);
         }

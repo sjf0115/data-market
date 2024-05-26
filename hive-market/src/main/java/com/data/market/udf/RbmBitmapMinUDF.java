@@ -48,7 +48,7 @@ public class RbmBitmapMinUDF extends GenericUDF {
         byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(deferredObjects[0].get(), this.inspector).getBytes();
 
         try {
-            Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+            Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
             return bitmap.min();
         } catch (IOException e) {
             throw new HiveException(e);

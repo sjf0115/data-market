@@ -32,7 +32,7 @@ public class RbmBitmapEmptyUDF extends GenericUDF {
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
         try {
             Rbm64Bitmap bitmap = new Rbm64Bitmap();
-            return Rbm64Bitmap.bitmapToBytes(bitmap);
+            return bitmap.toBytes();
         } catch (IOException e) {
             throw new HiveException(e);
         }

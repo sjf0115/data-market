@@ -49,7 +49,7 @@ public class RbmBitmapFromBase64UDF extends GenericUDF {
         Rbm64Bitmap bitmap = null;
         try {
             bitmap = Rbm64Bitmap.fromBase64(str);
-            return bitmap.bitmapToBytes();
+            return bitmap.toBytes();
         } catch (IOException e) {
             e.printStackTrace();
         }

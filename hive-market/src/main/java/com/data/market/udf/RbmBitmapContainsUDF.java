@@ -55,7 +55,7 @@ public class RbmBitmapContainsUDF extends GenericUDF {
         Long value = PrimitiveObjectInspectorUtils.getLong(deferredObjects[1].get(), this.inspector1);
 
         try {
-            Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+            Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
             return bitmap.contains(value);
         } catch (IOException e) {
             throw new HiveException(e);

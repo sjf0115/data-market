@@ -118,7 +118,7 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer)agg;
             try {
                 byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(partial, outputOI).getBytes();
-                Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+                Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
                 bitmapAggBuffer.bitmap.or(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -131,7 +131,7 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer) agg;
             byte[] bytes = null;
             try {
-                bytes = Rbm64Bitmap.bitmapToBytes(bitmapAggBuffer.bitmap);
+                bytes = bitmapAggBuffer.bitmap.toBytes();
             } catch (IOException e) {
                 e.printStackTrace();
             }

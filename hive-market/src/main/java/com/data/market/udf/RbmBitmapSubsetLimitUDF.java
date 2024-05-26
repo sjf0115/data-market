@@ -61,9 +61,9 @@ public class RbmBitmapSubsetLimitUDF extends GenericUDF {
         long limit = PrimitiveObjectInspectorUtils.getLong(deferredObjects[2].get(), this.inspector2);
 
         try {
-            Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+            Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
             bitmap.subsetLimit(start, limit);
-            return Rbm64Bitmap.bitmapToBytes(bitmap);
+            return bitmap.toBytes();
         } catch (IOException e) {
             throw new HiveException(e);
         }

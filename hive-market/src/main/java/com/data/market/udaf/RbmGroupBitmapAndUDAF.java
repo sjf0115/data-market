@@ -2,7 +2,6 @@ package com.data.market.udaf;
 
 import com.data.market.market.function.Rbm64Bitmap;
 import com.google.common.base.Objects;
-import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
@@ -99,7 +98,7 @@ public class RbmGroupBitmapAndUDAF extends AbstractGenericUDAFResolver {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer) agg;
             try {
                 byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(param, inputOI).getBytes();
-                Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+                Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
                 bitmapAggBuffer.bitmap.and(bitmap);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
@@ -123,7 +122,7 @@ public class RbmGroupBitmapAndUDAF extends AbstractGenericUDAFResolver {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer)agg;
             try {
                 byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(partial, outputOI).getBytes();
-                Rbm64Bitmap bitmap = Rbm64Bitmap.bytesToBitmap(bytes);
+                Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
                 bitmapAggBuffer.bitmap.and(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -136,7 +135,7 @@ public class RbmGroupBitmapAndUDAF extends AbstractGenericUDAFResolver {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer) agg;
             byte[] bytes = null;
             try {
-                bytes = Rbm64Bitmap.bitmapToBytes(bitmapAggBuffer.bitmap);
+                bytes = bitmapAggBuffer.bitmap.toBytes();
             } catch (IOException e) {
                 e.printStackTrace();
             }
