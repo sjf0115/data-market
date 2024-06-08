@@ -1,6 +1,7 @@
 package com.data.market.udf;
 
 import com.data.market.market.function.Rbm64Bitmap;
+import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
@@ -19,6 +20,7 @@ import java.io.IOException;
  * 公众号：大数据生态
  * 日期：2024/5/17 06:51
  */
+@Description(name = "rbm_bitmap_and_count", value = "_FUNC_(bitmap1, bitmap2) - Returns the cardinality of two bitmaps and")
 public class RbmBitmapAndCardinalityUDF extends GenericUDF {
     private static String functionName = "rbm_bitmap_and_count";
     private transient BinaryObjectInspector inspector0;
