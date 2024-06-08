@@ -9,11 +9,12 @@ import org.apache.hadoop.hive.ql.parse.SemanticException;
 import org.apache.hadoop.hive.ql.udf.generic.AbstractGenericUDAFResolver;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableBinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
+import org.apache.hadoop.io.BytesWritable;
 
 import java.io.IOException;
 
@@ -48,10 +49,9 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
 
     public static class MergeEvaluator extends GenericUDAFEvaluator {
         private PrimitiveObjectInspector inputOI;
-        private BinaryObjectInspector outputOI;
+        private WritableBinaryObjectInspector outputOI;
 
         static class BitmapAggBuffer implements AggregationBuffer {
-            boolean empty;
             Rbm64Bitmap bitmap;
             public BitmapAggBuffer () {
                 bitmap = new Rbm64Bitmap();
@@ -68,9 +68,9 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             if (mode == Mode.PARTIAL1 || mode == Mode.COMPLETE) {
                 this.inputOI = (PrimitiveObjectInspector) parameters[0];
             } else {
-                this.outputOI = (BinaryObjectInspector) parameters[0];
+                this.outputOI = (WritableBinaryObjectInspector) parameters[0];
             }
-            return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
+            return PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
         }
 
         // 创建新的聚合计算需要的内存，用来存储 Mapper, Combiner, Reducer 运算过程中的聚合。
@@ -89,7 +89,7 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
 
         // Map阶段：遍历输入参数
         @Override
-        public void iterate(AggregationBuffer agg, Object[] parameters) {
+        public void iterate(AggregationBuffer agg, Object[] parameters) throws HiveException {
             Object param = parameters[0];
             if (Objects.equal(param, null)) {
                 return;
@@ -99,43 +99,43 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
                 Long value = PrimitiveObjectInspectorUtils.getLong(param, inputOI);
                 bitmapAggBuffer.bitmap.add(value);
             } catch (NumberFormatException e) {
-                e.printStackTrace();
+                throw new HiveException(e);
             }
         }
 
         // Mapper,Combiner 结束要返回的结果
         @Override
-        public Object terminatePartial(AggregationBuffer agg) {
+        public Object terminatePartial(AggregationBuffer agg) throws HiveException {
             return terminate(agg);
         }
 
         // 合并: Combiner 合并 Mapper 返回的结果, Reducer 合并 Mapper 或 Combiner 返回的结果
         @Override
-        public void merge(AggregationBuffer agg, Object partial) {
+        public void merge(AggregationBuffer agg, Object partial) throws HiveException {
             if (Objects.equal(partial, null)){
                 return;
             }
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer)agg;
             try {
-                byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(partial, outputOI).getBytes();
+                BytesWritable bw = (BytesWritable)partial;
+                byte[] bytes = bw.getBytes();
                 Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
                 bitmapAggBuffer.bitmap.or(bitmap);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new HiveException(e);
             }
         }
 
         // 输出最终聚合结果
         @Override
-        public Object terminate(AggregationBuffer agg) {
+        public Object terminate(AggregationBuffer agg) throws HiveException {
             BitmapAggBuffer bitmapAggBuffer = (BitmapAggBuffer) agg;
-            byte[] bytes = null;
             try {
-                bytes = bitmapAggBuffer.bitmap.toBytes();
+                byte[] bytes = bitmapAggBuffer.bitmap.toBytes();
+                return new BytesWritable(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new HiveException(e);
             }
-            return bytes;
         }
     }
 }
