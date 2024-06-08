@@ -1,6 +1,7 @@
 package com.data.market.udf;
 
 import com.data.market.market.function.Rbm64Bitmap;
+import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
@@ -9,6 +10,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
+import org.apache.hadoop.io.BytesWritable;
 
 import java.io.IOException;
 
@@ -19,6 +21,7 @@ import java.io.IOException;
  * 公众号：大数据生态
  * 日期：2024/5/17 06:51
  */
+@Description(name = "rbm_bitmap_from_str", value = "_FUNC_(value) - Returns the bitmap of a string value, separate with commas")
 public class RbmBitmapFromStringUDF extends GenericUDF {
     private static String functionName = "rbm_bitmap_from_str";
     private transient StringObjectInspector inspector;
@@ -37,7 +40,7 @@ public class RbmBitmapFromStringUDF extends GenericUDF {
         this.inspector = (StringObjectInspector) arg;
 
         // 返回值类型
-        return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
+        return PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
     }
 
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
@@ -47,7 +50,7 @@ public class RbmBitmapFromStringUDF extends GenericUDF {
         String str = PrimitiveObjectInspectorUtils.getString(deferredObjects[0].get(), this.inspector);
         try {
             Rbm64Bitmap bitmap = Rbm64Bitmap.fromString(str);
-            return bitmap.toBytes();
+            return new BytesWritable(bitmap.toBytes());
         } catch (IOException e) {
             throw new HiveException(e);
         }
