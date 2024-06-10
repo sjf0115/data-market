@@ -9,6 +9,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
+import org.apache.hadoop.io.BytesWritable;
 
 import java.io.IOException;
 
@@ -32,12 +33,12 @@ public class RbmBitmapFromBase64UDF extends GenericUDF {
         // 参数类型校验
         ObjectInspector arg = arguments[0];
         if (!(arg instanceof StringObjectInspector)) {
-            throw new UDFArgumentException("Argument of '" + functionName + "' should be string type");
+            throw new UDFArgumentException("Argument of '" + functionName + "' should be string type, but got " + arg.getTypeName());
         }
         this.inspector = (StringObjectInspector) arg;
 
         // 返回值类型
-        return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
+        return PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
     }
 
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
@@ -48,7 +49,7 @@ public class RbmBitmapFromBase64UDF extends GenericUDF {
         String str = PrimitiveObjectInspectorUtils.getString(deferredObjects[0].get(), this.inspector);
         try {
             Rbm64Bitmap bitmap = Rbm64Bitmap.fromBase64(str);
-            return bitmap.toBytes();
+            return new BytesWritable(bitmap.toBytes());
         } catch (IOException e) {
             throw new HiveException(e);
         }

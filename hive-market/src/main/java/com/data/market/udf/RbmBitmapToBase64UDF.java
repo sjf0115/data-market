@@ -19,7 +19,7 @@ import java.io.IOException;
  * 公众号：大数据生态
  * 日期：2024/5/17 06:51
  */
-public class RbmBitmapToBase64UDF extends GenericUDF {
+    public class RbmBitmapToBase64UDF extends GenericUDF {
     private static String functionName = "rbm_bitmap_to_base64";
     private transient BinaryObjectInspector inspector;
 
