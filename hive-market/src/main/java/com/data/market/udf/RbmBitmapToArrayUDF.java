@@ -33,7 +33,7 @@ public class RbmBitmapToArrayUDF extends GenericUDF {
         // 参数类型校验
         ObjectInspector arg = arguments[0];
         if (!(arg instanceof BinaryObjectInspector)) {
-            throw new UDFArgumentException("Argument of '" + functionName + "' should be binary type");
+            throw new UDFArgumentException("Argument of '" + functionName + "' should be binary type, but got " + arg.getTypeName());
         }
         this.inspector = (BinaryObjectInspector) arg;
 
