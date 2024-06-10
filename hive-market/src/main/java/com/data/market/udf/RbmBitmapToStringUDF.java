@@ -7,7 +7,9 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableBinaryObjectInspector;
 import org.apache.hadoop.io.BytesWritable;
 
@@ -23,6 +25,7 @@ import java.io.IOException;
 @Description(name = "rbm_bitmap_to_str", value = "_FUNC_(bitmap) - Returns the string of a bitmap, separate with commas")
 public class RbmBitmapToStringUDF extends GenericUDF {
     private static String functionName = "rbm_bitmap_to_str";
+    private transient BinaryObjectInspector inspector;
 
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         // 参数个数校验
@@ -32,9 +35,10 @@ public class RbmBitmapToStringUDF extends GenericUDF {
 
         // 参数类型校验
         ObjectInspector arg = arguments[0];
-        if (!(arg instanceof WritableBinaryObjectInspector)) {
-            throw new UDFArgumentException("Argument of '" + functionName + "' should be binary type");
+        if (!(arg instanceof BinaryObjectInspector)) {
+            throw new UDFArgumentException("Argument of '" + functionName + "' should be binary type, but got " + arg.getTypeName());
         }
+        this.inspector = (BinaryObjectInspector) arg;
 
         // 返回值类型
         return PrimitiveObjectInspectorFactory.javaStringObjectInspector;
@@ -45,8 +49,7 @@ public class RbmBitmapToStringUDF extends GenericUDF {
             return null;
         }
 
-        BytesWritable bw0 = (BytesWritable)(deferredObjects[0].get());
-        byte[] bytes = bw0.getBytes();
+        byte[] bytes = PrimitiveObjectInspectorUtils.getBinary(deferredObjects[0].get(), this.inspector).getBytes();
 
         try {
             Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
