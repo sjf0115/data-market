@@ -7,6 +7,7 @@ import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.io.BytesWritable;
 
 import java.io.IOException;
 
@@ -26,13 +27,13 @@ public class RbmBitmapEmptyUDF extends GenericUDF {
             throw new UDFArgumentLengthException("The function '" +  functionName +"' no argument, but got " + arguments.length);
         }
         // 返回值类型
-        return PrimitiveObjectInspectorFactory.javaByteObjectInspector;
+        return PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
     }
 
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
         try {
             Rbm64Bitmap bitmap = new Rbm64Bitmap();
-            return bitmap.toBytes();
+            return new BytesWritable(bitmap.toBytes());
         } catch (IOException e) {
             throw new HiveException(e);
         }
