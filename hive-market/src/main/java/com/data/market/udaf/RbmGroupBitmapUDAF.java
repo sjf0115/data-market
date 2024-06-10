@@ -11,7 +11,6 @@ import org.apache.hadoop.hive.ql.udf.generic.GenericUDAFEvaluator;
 import org.apache.hadoop.hive.serde2.objectinspector.*;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.WritableBinaryObjectInspector;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.io.BytesWritable;
@@ -49,7 +48,6 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
 
     public static class MergeEvaluator extends GenericUDAFEvaluator {
         private PrimitiveObjectInspector inputOI;
-        private WritableBinaryObjectInspector outputOI;
 
         static class BitmapAggBuffer implements AggregationBuffer {
             Rbm64Bitmap bitmap;
@@ -67,8 +65,6 @@ public class RbmGroupBitmapUDAF extends AbstractGenericUDAFResolver {
             super.init(mode, parameters);
             if (mode == Mode.PARTIAL1 || mode == Mode.COMPLETE) {
                 this.inputOI = (PrimitiveObjectInspector) parameters[0];
-            } else {
-                this.outputOI = (WritableBinaryObjectInspector) parameters[0];
             }
             return PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
         }
