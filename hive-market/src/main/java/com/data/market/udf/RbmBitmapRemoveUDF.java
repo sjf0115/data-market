@@ -10,6 +10,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspe
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.LongObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorUtils;
+import org.apache.hadoop.io.BytesWritable;
 
 import java.io.IOException;
 
@@ -46,7 +47,7 @@ public class RbmBitmapRemoveUDF extends GenericUDF {
         this.inspector1 = (LongObjectInspector) arg1;
 
         // 返回值类型
-        return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
+        return PrimitiveObjectInspectorFactory.writableBinaryObjectInspector;
     }
 
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
@@ -60,7 +61,7 @@ public class RbmBitmapRemoveUDF extends GenericUDF {
         try {
             Rbm64Bitmap bitmap = Rbm64Bitmap.fromBytes(bytes);
             bitmap.remove(value);
-            return bitmap.toBytes();
+            return new BytesWritable(bitmap.toBytes());
         } catch (IOException e) {
             throw new HiveException(e);
         }
