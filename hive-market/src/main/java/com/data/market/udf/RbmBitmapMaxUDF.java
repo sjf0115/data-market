@@ -41,7 +41,7 @@ public class RbmBitmapMaxUDF extends GenericUDF {
     }
 
     public Object evaluate(DeferredObject[] deferredObjects) throws HiveException {
-        if (deferredObjects[0].get() == null || deferredObjects[1].get() == null) {
+        if (deferredObjects[0].get() == null) {
             return null;
         }
 
