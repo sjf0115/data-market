@@ -54,8 +54,22 @@ public class RbmGroupBitmapAndUDAF extends AbstractGenericUDAFResolver {
         @AggregationType(estimable = true)
         static class BitmapAggBuffer extends AbstractAggregationBuffer {
             Rbm64Bitmap bitmap;
+            boolean isFirst = true;
             public BitmapAggBuffer () {
                 bitmap = new Rbm64Bitmap();
+            }
+
+            public void and (Rbm64Bitmap bitmap) {
+                // 跳过 NULL 列
+                if (Objects.equal(bitmap, null)) {
+                    return;
+                }
+                if (isFirst) {
+                    this.bitmap = bitmap;
+                    isFirst = false;
+                } else {
+                    this.bitmap.and(bitmap);
+                }
             }
         }
 
