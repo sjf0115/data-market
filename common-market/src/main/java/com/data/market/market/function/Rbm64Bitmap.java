@@ -153,14 +153,6 @@ public class Rbm64Bitmap {
     //------------------------------------------------------------------------------------------------------------------
 
     /**
-     * 添加元素
-     * @param value
-     */
-    public void add(Long value) {
-        this.bitmap.addLong(value);
-    }
-
-    /**
      * 与操作
      * @param other
      */
@@ -195,19 +187,53 @@ public class Rbm64Bitmap {
     }
 
     /**
+     * 添加指定的数值
+     * @param value
+     */
+    public void add(Long value) {
+        this.bitmap.addLong(value);
+    }
+
+    /**
+     * 删除指定的数值
+     * @param value
+     */
+    public void remove(Long value) {
+        this.bitmap.removeLong(value);
+    }
+
+    /**
+     * 最大值
+     * @return
+     */
+    public Long max() {
+        OptionalLong maxOptional = this.bitmap.stream().max();
+        if (maxOptional.isPresent()) {
+            return maxOptional.getAsLong();
+        } else {
+            return 0L;
+        }
+    }
+
+    /**
+     * 最小值
+     * @return
+     */
+    public Long min() {
+        OptionalLong minOptional = this.bitmap.stream().min();
+        if (minOptional.isPresent()) {
+            return minOptional.getAsLong();
+        } else {
+            return Long.MAX_VALUE;
+        }
+    }
+
+    /**
      * 是否包含
      * @param value
      */
     public boolean contains(Long value) {
         return this.bitmap.contains(value);
-    }
-
-    /**
-     * 从 Bitmap 中删除指定的数值
-     * @param value
-     */
-    public void remove(Long value) {
-        this.bitmap.removeLong(value);
     }
 
     /**
@@ -257,32 +283,6 @@ public class Rbm64Bitmap {
         this.bitmap = Roaring64NavigableMap.bitmapOf(
                 this.bitmap.stream().skip(offset).limit(limit).toArray()
         );
-    }
-
-    /**
-     * 最大值
-     * @return
-     */
-    public Long max() {
-        OptionalLong maxOptional = this.bitmap.stream().max();
-        if (maxOptional.isPresent()) {
-            return maxOptional.getAsLong();
-        } else {
-            return 0L;
-        }
-    }
-
-    /**
-     * 最小值
-     * @return
-     */
-    public Long min() {
-        OptionalLong minOptional = this.bitmap.stream().min();
-        if (minOptional.isPresent()) {
-            return minOptional.getAsLong();
-        } else {
-            return Long.MAX_VALUE;
-        }
     }
 
     /**
