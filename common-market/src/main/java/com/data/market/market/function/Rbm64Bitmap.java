@@ -224,7 +224,7 @@ public class Rbm64Bitmap {
         if (minOptional.isPresent()) {
             return minOptional.getAsLong();
         } else {
-            return Long.MAX_VALUE;
+            return -1L;
         }
     }
 
